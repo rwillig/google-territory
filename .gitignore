@@ -1,0 +1,14 @@
+/resources/public
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+.boot
+.git
+*.swp
+*.jar
+.boot/*
+*.class
+/.lein-*
+/.nrepl-port
