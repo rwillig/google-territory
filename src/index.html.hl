@@ -1,0 +1,25 @@
+<script type="text/hoplon">
+(page "index.html"
+        (:refer-hoplon :exclude  [center])
+        (:require
+             [hoplon.google.api        :as g :refer  [google-map]]
+             [hoplon.twitter.bootstrap :as b :refer  [container tab tabs]]))
+
+(reset! g/api-key "AIzaSyDGqkxjAuq4IeG7rUt6C33Jsiv41bkQfBk")
+
+
+(def miami-beach   {:name "Miami Beach"   :lat 25.8130 :lon  -80.1341})
+</script>
+
+<html lang="en">
+  <head><title>Michael A. Haber, P.A.</title></head>
+  <body>
+    <b.container>
+      <h1>Territory Builder</h1>
+      <g.google-map
+        css='{{ (cell= {:height "600px" :width "80%" :margin "0" :border "1px solid blue"}) }}'
+        center='{{ miami-beach }}'
+        opts='{{ {:zoom 12} }}'/>
+    </b.container>
+  </body>
+</html>
