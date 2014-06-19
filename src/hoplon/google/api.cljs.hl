@@ -80,7 +80,7 @@
                           wrp (fn [& args] (apply fun imap polyline pline args))]
                       (.addListener Event polyline evt wrp)))
                   (cell= (let [map  (when path imap)
-                               path (when path (mapv #(lat-lng (:lat %) (:lon %)) path))
+                               path (if path (mapv #(lat-lng (:lat %) (:lon %)) path) [])
                                opt  (clj->js (merge {} opts {:map map :path path}))]
                            (.setOptions polyline opt)))))
               
@@ -92,7 +92,7 @@
                           wrp (fn [& args] (apply fun imap polygon pgon args))]
                       (.addListener Event polygon evt wrp)))
                   (cell= (let [map  (when path imap)
-                               path (when path (mapv #(lat-lng (:lat %) (:lon %)) path))
+                               path (if path (mapv #(lat-lng (:lat %) (:lon %)) path) [])
                                opt  (clj->js (merge {} opts {:map map :path path}))]
                            (.setOptions polygon opt)))))
               

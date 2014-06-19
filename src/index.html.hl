@@ -3,22 +3,57 @@
         (:refer-hoplon :exclude  [center])
         (:require
              [hoplon.google.api        :as g :refer  [google-map]]
+             [tailrecursion.castra     :as c :refer  [mkremote]]
              [hoplon.twitter.bootstrap :as b :refer  [container tab tabs]]))
 
 (reset! g/api-key "AIzaSyDGqkxjAuq4IeG7rUt6C33Jsiv41bkQfBk")
+(def miami-beach              {:name "Miami Beach"   :lat 25.8130 :lon  -80.1341})
+(def working-line-opts        {:strokeColor "Green" :strokeWeight "3"})
+(def polygon-opts             {:strokeColor "Blue"  :strokeWeight "1" :fillOpacity "0.3" :visible true})
+(def incomplete-polygon-opts  {:visible false})
+  
+(defc state                   nil)
+(defc error                   nil)
+(defc loading                 [])
 
+(defc= polygons               (mapv #(if (= (:status %) :complete) (assoc % :opts polygon-opts) (assoc % :opts incomplete-polygon-opts))(:polygons state)))
+(defc= working-polygon        (first (filter #(= (:status %) :incomplete) polygons)))
+(defc= polylines              (if working-polygon [{:path (:path working-polygon) :opts working-line-opts}]))
 
-(def miami-beach   {:name "Miami Beach"   :lat 25.8130 :lon  -80.1341})
+(def get-state        (mkremote 'castra.api/get-state         state error loading))
+(def rmt-add-point    (mkremote 'castra.api/add-point         state error loading))
+(def rmt-finalize     (mkremote 'castra.api/finalize-polygon  state error loading))
+(add-initfn! get-state)
+
+(defn add-point [imap evt]
+  (let [latlng  (.-latLng evt)
+        lat     (.lat latlng)
+        lng     (.lng latlng)
+        pnt     {:lat lat :lon lng}]
+    (rmt-add-point pnt (:id @working-polygon))))
+
+(defn close-polygon [imap evt]
+  (rmt-finalize (:id @working-polygon)))
+
+;(cell= (.log js/console "[state]" (clj->js state)))
+;(cell= (.log js/console "[gons]" (clj->js polygons)))
+;(cell= (.log js/console "[working]" (clj->js working-polygon)))
+;(cell= (.log js/console "[line]" (clj->js polylines)))
+(cell= (.log js/console "[error]" error ))
 </script>
 
 <html lang="en">
-  <head><title>Michael A. Haber, P.A.</title></head>
+  <head><title>Territory Builder</title></head>
   <body>
     <b.container>
       <h1>Territory Builder</h1>
       <g.google-map
         css='{{ (cell= {:height "600px" :width "80%" :margin "0" :border "1px solid blue"}) }}'
         center='{{ miami-beach }}'
+        map-click='{{ add-point }}'
+        map-rightclick='{{ close-polygon }}'
+        polylines='{{ polylines }}'
+        polygons='{{ polygons }}'
         opts='{{ {:zoom 12} }}'/>
     </b.container>
   </body>
